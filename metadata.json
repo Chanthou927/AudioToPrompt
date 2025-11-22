@@ -1,0 +1,5 @@
+{
+  "name": "AudioToPrompt",
+  "description": "Extract detailed creative prompts and descriptions from MP3, M4A, or WAV audio files using Gemini 2.5 Flash.",
+  "requestFramePermissions": []
+}
