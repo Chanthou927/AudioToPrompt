@@ -23,7 +23,7 @@ export const generatePromptFromAudio = async (audioBase64: string, mimeType: str
     // Updated instruction to match the requested format and avoid safety blocks
     const systemInstruction = `
       You are an expert AI audio engineer and musicologist.
-      Analyze the provided audio file and generate a structured report for generative AI prompting.
+      Analyze the provided audio file and generate a structured report.
 
       STRICTLY follow this output format:
 
@@ -35,7 +35,11 @@ export const generatePromptFromAudio = async (audioBase64: string, mimeType: str
       Prompt:
       [A comprehensive, single-paragraph text prompt describing instruments, textures, sound effects, and progression. Do not include the file name or metadata.]
 
-      Important: Focus on sonic characteristics. Do not refuse to answer if the audio is unclear; instead, describe the noise or silence. Do not identify specific copyrighted songs.
+      Important Guidelines:
+      - Focus ONLY on sonic characteristics (timbre, rhythm, instrumentation).
+      - Do NOT identify the artist or song name (to avoid copyright restrictions/safety blocks).
+      - Do NOT refuse to generate if the audio is low quality; describe the quality.
+      - If no music is detected, describe the sound (e.g., speech, nature sounds, silence).
     `;
 
     const response = await ai.models.generateContent({
@@ -59,6 +63,13 @@ export const generatePromptFromAudio = async (audioBase64: string, mimeType: str
         systemInstruction: systemInstruction,
         temperature: 0.4, // Lower temperature for stricter formatting
         maxOutputTokens: 1000,
+        // Safety settings to prevent blocking on harmless content/lyrics
+        safetySettings: [
+          { category: 'HARM_CATEGORY_HARASSMENT', threshold: 'BLOCK_NONE' },
+          { category: 'HARM_CATEGORY_HATE_SPEECH', threshold: 'BLOCK_NONE' },
+          { category: 'HARM_CATEGORY_SEXUALLY_EXPLICIT', threshold: 'BLOCK_NONE' },
+          { category: 'HARM_CATEGORY_DANGEROUS_CONTENT', threshold: 'BLOCK_NONE' },
+        ]
       }
     });
 
@@ -75,7 +86,7 @@ export const generatePromptFromAudio = async (audioBase64: string, mimeType: str
         }
       }
       
-      throw new Error("No text generated from the model. Please try a different or shorter audio clip.");
+      throw new Error("No text generated from the model. The audio might be silent or blocked by safety filters.");
     }
 
     return text.trim();
@@ -87,7 +98,7 @@ export const generatePromptFromAudio = async (audioBase64: string, mimeType: str
       throw new Error("Invalid or missing API Key.");
     }
     if (error.message?.includes('413') || error.message?.includes('too large')) {
-        throw new Error("File is too large for the API processing. Please try a file smaller than 9MB.");
+        throw new Error("File is too large for the API processing. Please try a file smaller than 9.5MB.");
     }
     // Pass through specific errors we threw above
     throw error;
