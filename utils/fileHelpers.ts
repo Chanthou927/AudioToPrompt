@@ -4,19 +4,22 @@ export const validateAudioFile = (file: File): string | null => {
   if (!file) return "No file selected.";
   
   // Basic MIME type check (browser dependent, so we permit some flexibility)
-  const isAudio = file.type.startsWith('audio/') || file.name.endsWith('.m4a') || file.name.endsWith('.mp3') || file.name.endsWith('.wav');
+  const isAudio = file.type.startsWith('audio/') || 
+                  file.name.endsWith('.m4a') || 
+                  file.name.endsWith('.mp3') || 
+                  file.name.endsWith('.wav') ||
+                  file.name.endsWith('.ogg');
   
   if (!isAudio) {
     return `Unsupported file format: ${file.type}. Please upload MP3, M4A, or WAV.`;
   }
 
-  // Size limit: 10MB
-  // API Inline data limit is ~20MB. Base64 encoding adds ~33%.
-  // 10MB * 1.33 = ~13.3MB, which is safe.
-  // 20MB * 1.33 = ~26.6MB, which will fail.
-  const maxSize = 10 * 1024 * 1024; // 10MB
+  // Size limit: 9.5MB
+  // API Inline data limit is 20MB. Base64 encoding adds ~33%.
+  // 9.5MB * 1.33 = ~12.6MB. This leaves plenty of headroom for the request body.
+  const maxSize = 9.5 * 1024 * 1024; 
   if (file.size > maxSize) {
-    return "File size too large. Please upload a file smaller than 10MB.";
+    return "File size too large. Please upload a file smaller than 9.5MB.";
   }
 
   return null;
