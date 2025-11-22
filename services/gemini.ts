@@ -62,7 +62,9 @@ export const generatePromptFromAudio = async (audioBase64: string, mimeType: str
       config: {
         systemInstruction: systemInstruction,
         temperature: 0.4, // Lower temperature for stricter formatting
-        maxOutputTokens: 1000,
+        // Removed maxOutputTokens limit. The model needs budget for 'thinking' tokens + output.
+        // The default limit (usually ~8k for flash) is sufficient and safe.
+        
         // Safety settings to prevent blocking on harmless content/lyrics
         safetySettings: [
           { category: 'HARM_CATEGORY_HARASSMENT', threshold: 'BLOCK_NONE' },
@@ -82,6 +84,9 @@ export const generatePromptFromAudio = async (audioBase64: string, mimeType: str
       if (response.candidates && response.candidates.length > 0) {
         const candidate = response.candidates[0];
         if (candidate.finishReason && candidate.finishReason !== 'STOP') {
+             if (candidate.finishReason === 'MAX_TOKENS') {
+                throw new Error("Model stopped generating (Max Tokens). The model used too many tokens for thinking or analysis. Try a shorter audio clip.");
+             }
              throw new Error(`Model stopped generating. Reason: ${candidate.finishReason}. The audio might contain safety violations or be too ambiguous.`);
         }
       }

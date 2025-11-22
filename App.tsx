@@ -7,6 +7,7 @@ import { Header } from './components/Header';
 import { ResultCard } from './components/ResultCard';
 import { LoadingOverlay } from './components/LoadingOverlay';
 import { ErrorBanner } from './components/ErrorBanner';
+import { ExamplePrompts } from './components/ExamplePrompts';
 import { Info as InfoIcon } from 'lucide-react';
 
 const App: React.FC = () => {
@@ -139,7 +140,7 @@ const App: React.FC = () => {
               <ErrorBanner message={state.error} onClose={() => setState(prev => ({ ...prev, error: null }))} />
             )}
             
-            <div className="bg-slate-800/50 border border-slate-700 rounded-2xl p-6 shadow-xl backdrop-blur-sm min-h-[400px] flex flex-col">
+            <div className="bg-slate-800/50 border border-slate-700 rounded-2xl p-6 shadow-xl backdrop-blur-sm min-h-[400px] flex flex-col relative">
               <h2 className="text-xl font-semibold mb-4 flex items-center gap-2 text-emerald-300">
                 2. Generated Prompt
               </h2>
@@ -149,9 +150,13 @@ const App: React.FC = () => {
               ) : state.result ? (
                 <ResultCard prompt={state.result.text} />
               ) : (
-                <div className="flex-grow flex flex-col items-center justify-center text-slate-500 border-2 border-dashed border-slate-700/50 rounded-xl bg-slate-800/30">
-                  <span className="text-4xl mb-2">✨</span>
-                  <p>Upload a file to generate a prompt</p>
+                <div className="flex flex-col h-full animate-in fade-in duration-500">
+                  <div className="flex-grow flex flex-col items-center justify-center text-slate-500 border-2 border-dashed border-slate-700/50 rounded-xl bg-slate-800/30 p-6">
+                    <span className="text-4xl mb-3 opacity-50">✨</span>
+                    <p className="text-sm font-medium">Upload an audio file to generate a prompt</p>
+                    <p className="text-xs opacity-60 mt-1 text-center max-w-[200px]">Gemini analyzes the file and describes it in detail.</p>
+                  </div>
+                  <ExamplePrompts />
                 </div>
               )}
             </div>
